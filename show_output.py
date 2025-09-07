@@ -1,21 +1,51 @@
 import pandas as pd
 
-# Set pandas options to display all columns and prevent truncation
-pd.set_option('display.max_columns', None)
-pd.set_option('display.width', 200)
+def show_excel_output(file_path="automation_output.xlsx"):
+    """
+    Reads and displays the contents of both sheets from the specified Excel file.
+    """
+    try:
+        # Read both sheets from the Excel file
+        part_a_df = pd.read_excel(file_path, sheet_name="PartA_Company_Revenue")
+        part_b_df = pd.read_excel(file_path, sheet_name="PartB_Contact_Enrichment")
 
-try:
-    # Read both sheets from the Excel file
-    df_part_a = pd.read_excel("automation_output.xlsx", sheet_name="PartA_Company_Revenue")
-    df_part_b = pd.read_excel("automation_output.xlsx", sheet_name="PartB_Contact_Enrichment")
+        print("\n" + "="*50)
+        print("          Part A: Company Revenue & Tier          ")
+        print("="*50)
+        
+        if not part_a_df.empty:
+            print(part_a_df.to_string())
+        else:
+            print("No data found in PartA_Company_Revenue sheet.")
 
-    print("--- Contents of PartA_Company_Revenue ---")
-    print(df_part_a.to_string())
-    print("\n" + "="*50 + "\n")
-    print("--- Contents of PartB_Contact_Enrichment ---")
-    print(df_part_b.to_string())
+        print("\n" + "="*50)
+        print("        Part B: Contact Enrichment Results        ")
+        print("="*50)
 
-except FileNotFoundError:
-    print("The file 'automation_output.xlsx' was not found.")
-except Exception as e:
-    print(f"An error occurred while reading the file: {e}")
+        if not part_b_df.empty:
+            # To make it more readable, let's select and reorder key columns
+            display_cols = [
+                "Full Name", 
+                "Current Company", 
+                "Current Designation", 
+                "LinkedIn URL", 
+                "Work Email"
+            ]
+            # Filter for columns that actually exist to avoid errors
+            existing_cols = [col for col in display_cols if col in part_b_df.columns]
+            print(part_b_df[existing_cols].to_string())
+        else:
+            print("No data found in PartB_Contact_Enrichment sheet.")
+            
+        print("\n" + "="*50)
+        print(f"Data read successfully from '{file_path}'")
+        print("="*50)
+
+    except FileNotFoundError:
+        print(f"\n!!! Error: Output file '{file_path}' not found.")
+        print("Please run 'agent_executor.py' first to generate the output file.")
+    except Exception as e:
+        print(f"\n!!! An error occurred while reading the Excel file: {e}")
+
+if __name__ == "__main__":
+    show_excel_output()
