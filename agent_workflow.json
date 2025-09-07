@@ -1,0 +1,111 @@
+{
+    "name": "Shipsy_Automation_Workflow",
+    "version": "1.0",
+    "agents": [
+        {
+            "id": "input_loader",
+            "type": "ExcelReader",
+            "params": {
+                "file": "Shipsy Assignment (1).xlsx",
+                "sheets": [
+                    "Companies",
+                    "Contacts"
+                ]
+            }
+        },
+        {
+            "id": "company_revenue",
+            "type": "RevenueSearchAgent",
+            "params": {
+                "sources_priority": [
+                    "EDGAR",
+                    "CompaniesHouse",
+                    "MCA",
+                    "Crunchbase",
+                    "IRWebsite",
+                    "PressReleases"
+                ],
+                "normalize_currency": true
+            }
+        },
+        {
+            "id": "tiering",
+            "type": "TieringAgent",
+            "params": {
+                "rules": {
+                    "Super Platinum": ">1000000000",
+                    "Platinum": "500000000-1000000000",
+                    "Diamond": "100000000-500000000",
+                    "Gold": "<100000000"
+                }
+            }
+        },
+        {
+            "id": "contact_enrichment",
+            "type": "ContactAgent",
+            "params": {
+                "sources": [
+                    "LinkedIn",
+                    "Clearbit",
+                    "Hunter"
+                ],
+                "fields": [
+                    "LinkedIn URL",
+                    "Current Designation",
+                    "Work Email"
+                ]
+            }
+        },
+        {
+            "id": "output_writer",
+            "type": "ExcelWriter",
+            "params": {
+                "output_file": "automation_output.xlsx",
+                "sheets": {
+                    "PartA_Company_Revenue": [
+                        "CompanyName",
+                        "Region",
+                        "Domain",
+                        "LatestRevenue",
+                        "RevenueCurrency",
+                        "RevenueDate",
+                        "RevenueSourceURL",
+                        "USD_Normalized",
+                        "Tier"
+                    ],
+                    "PartB_Contact_Enrichment": [
+                        "ContactName",
+                        "CompanyName",
+                        "LinkedIn URL",
+                        "Current Designation",
+                        "Work Email",
+                        "EnrichmentSource",
+                        "Confidence"
+                    ]
+                }
+            }
+        }
+    ],
+    "flow": [
+        {
+            "from": "input_loader",
+            "to": "company_revenue"
+        },
+        {
+            "from": "company_revenue",
+            "to": "tiering"
+        },
+        {
+            "from": "tiering",
+            "to": "output_writer"
+        },
+        {
+            "from": "input_loader",
+            "to": "contact_enrichment"
+        },
+        {
+            "from": "contact_enrichment",
+            "to": "output_writer"
+        }
+    ]
+}

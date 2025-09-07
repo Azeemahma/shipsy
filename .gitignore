@@ -1,0 +1,14 @@
+# Python
+venv/
+__pycache__/
+
+# Output files
+*.xlsx
+automation_output.xlsx
+
+# Environment files
+.env
+env.example
+
+# VSCode
+.vscode/
