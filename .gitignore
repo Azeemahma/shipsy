@@ -8,7 +8,6 @@ automation_output.xlsx
 
 # Environment files
 .env
-env.example
 
 # VSCode
 .vscode/
